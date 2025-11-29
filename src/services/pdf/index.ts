@@ -32,6 +32,11 @@ export * from './installments/installment-report-html';
 export * from './installments/installment-report-print';
 export * from './installments/installment-report-export';
 
+// Export react-pdf installment receipt
+export { default as InstallmentReceiptPDF } from './installments/InstallmentReceiptPDF';
+export { generateInstallmentReceiptPDF, downloadInstallmentReceiptPDF } from './installments/InstallmentReceiptPDF';
+export type { InstallmentReceiptData, SchoolSettings as InstallmentReceiptSchoolSettings, InstallmentReceiptPDFProps } from './installments/InstallmentReceiptPDF';
+
 // Export fees collection report functionality
 export * from './fees-collection/fees-collection-html';
 export * from './fees-collection/fees-collection-print';

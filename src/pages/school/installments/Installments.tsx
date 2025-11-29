@@ -5,10 +5,7 @@ import { useSupabaseAuth } from '../../../contexts/SupabaseAuthContext';
 import { CURRENCY as CURRENCY_SYMBOL } from '../../../utils/constants';
 import hybridApi from '../../../services/hybridApi';
 import { Template } from '../../../services/dataStore';
-import pdfPrinter from '../../../services/pdfPrinter';
 import { exportInstallmentsToCSV } from '../../../services/importExport';
-import { exportInstallmentReceiptAsPDF } from '../../../services/pdf/receipts/receipt-export';
-import { generateReceiptHTML } from '../../../services/pdf/receipts/receipt-html';
 import { buildZip } from '../../../utils/zipBuilder';
 import { exportStudentInstallmentsReportAsPDF } from '../../../utils/pdfExport';
 import { toast } from 'react-hot-toast';
@@ -19,6 +16,15 @@ import InstallmentEnglishReceiptButton from '../../../components/payments/Instal
 import { Input } from '../../../components/ui/Input';
 import { AlertDialog } from '../../../components/ui/Dialog';
 import whatsappService from '../../../services/whatsapp';
+// pdfPrinter still needed for student installments report (not receipts)
+import pdfPrinter from '../../../services/pdfPrinter';
+// React-PDF imports for installment receipts (replaces Electron/Playwright)
+import { 
+  downloadInstallmentReceiptPDF, 
+  generateInstallmentReceiptPDF,
+  type InstallmentReceiptData,
+  type SchoolSettings as InstallmentSchoolSettings
+} from '../../../services/pdf/installments/InstallmentReceiptPDF';
 
 // Format phone number - preserve as entered
 const formatPhoneNumber = (phone: string): string => {
@@ -1151,20 +1157,42 @@ const Installments = () => {
       };
       
       console.log('INSTALLMENTS.TSX - Final receiptData being sent to PDF:', receiptData);
-      console.log('INSTALLMENTS.TSX - Final receiptData school fields:', {
-        schoolName: receiptData.schoolName,
-        englishSchoolName: receiptData.englishSchoolName,
-        schoolLogo: receiptData.schoolLogo,
-        schoolPhone: receiptData.schoolPhone,
-        schoolPhoneWhatsapp: receiptData.schoolPhoneWhatsapp,
-        schoolPhoneCall: receiptData.schoolPhoneCall,
-        schoolEmail: receiptData.schoolEmail
-      });
       
-      // Use the new installment-specific receipt function
-      await pdfPrinter.downloadInstallmentReceiptAsPDF(receiptData);
+      // Use React-PDF for instant PDF generation (no Electron/Playwright)
+      const installmentData: InstallmentReceiptData = {
+        receiptNumber: receiptData.receiptNumber || 'N/A',
+        date: receiptData.date || new Date().toISOString(),
+        studentName: receiptData.studentName,
+        studentNumber: receiptData.studentId,
+        className: receiptData.grade,
+        paymentType: receiptData.feeType,
+        paymentMethod: receiptData.paymentMethod || 'cash',
+        installmentNumber: receiptData.installmentNumber || '1',
+        installmentMonth: receiptData.installmentMonth,
+        installmentAmount: receiptData.totalAmount || receiptData.amount,
+        paidAmount: receiptData.paidAmount || receiptData.amount,
+        remainingAmount: (receiptData.totalAmount || receiptData.amount) - (receiptData.paidAmount || receiptData.amount),
+        paymentNote: receiptData.paymentNote,
+        checkNumber: receiptData.checkNumber,
+      };
       
-      // Note: Receipt counter increment will be handled by hybridApi in the future
+      const schoolSettingsForPDF: InstallmentSchoolSettings = {
+        schoolNameArabic: receiptData.schoolName || 'اسم المدرسة',
+        schoolNameEnglish: receiptData.englishSchoolName,
+        schoolLogo: receiptData.schoolLogo || '',
+        phone: receiptData.schoolPhone || '',
+        phoneWhatsapp: receiptData.schoolPhoneWhatsapp,
+        phoneCall: receiptData.schoolPhoneCall,
+        email: receiptData.schoolEmail || '',
+        address: settings.address,
+        website: settings.website,
+        showWatermark: receiptData.showWatermark !== false,
+        showSignature: receiptData.showSignatureOnInstallmentReceipt !== false,
+        signature: settings.signature,
+      };
+      
+      await downloadInstallmentReceiptPDF(installmentData, schoolSettingsForPDF);
+      toast.success('تم تحميل الإيصال بنجاح');
     } catch (error) {
       console.error('Error downloading receipt:', error);
       setAlertMessage('حدث خطأ أثناء تنزيل الإيصال');
@@ -1607,12 +1635,52 @@ const Installments = () => {
     }
     setBulkDownloadLoading(true);
     try {
+      // Fetch school settings once for all receipts
+      const settingsResponse = await hybridApi.getSettings(user?.schoolId || '');
+      const settingsData = (settingsResponse?.success && settingsResponse?.data && settingsResponse.data.length > 0) 
+        ? settingsResponse.data[0] 
+        : {};
+      
+      const schoolSettingsForPDF: InstallmentSchoolSettings = {
+        schoolNameArabic: settingsData.name || settingsData.schoolName || 'اسم المدرسة',
+        schoolNameEnglish: settingsData.englishName || settingsData.schoolNameEnglish,
+        schoolLogo: settingsData.logo || settingsData.schoolLogo || '',
+        phone: settingsData.phone || settingsData.schoolPhone || '',
+        phoneWhatsapp: settingsData.phoneWhatsapp,
+        phoneCall: settingsData.phoneCall,
+        email: settingsData.email || settingsData.schoolEmail || '',
+        address: settingsData.address,
+        website: settingsData.website,
+        showWatermark: settingsData.showReceiptWatermark !== false,
+        showSignature: settingsData.showSignatureOnInstallmentReceipt !== false,
+        signature: settingsData.signature,
+      };
+      
       let count = 0;
       for (const id of selectedIds) {
         const inst = installments.find(i => i.id === id);
         if (!inst) continue;
-        const data = generateReceiptDataForInstallment(inst);
-        await exportInstallmentReceiptAsPDF(data as any);
+        
+        // Prepare installment data for React-PDF
+        const installmentData: InstallmentReceiptData = {
+          receiptNumber: inst.receiptNumber || `INS-${Date.now()}-${count}`,
+          date: inst.paidDate || new Date().toISOString(),
+          studentName: inst.studentName,
+          studentNumber: inst.studentCustomId || inst.studentId,
+          className: inst.grade,
+          paymentType: getFeeTypeLabel(inst.feeType),
+          paymentMethod: inst.paymentMethod || 'cash',
+          installmentNumber: getInstallmentNumber(inst).toString(),
+          installmentMonth: inst.installmentMonth,
+          installmentAmount: inst.amount,
+          paidAmount: getPaidAmount(inst) || inst.amount,
+          remainingAmount: getRemainingBalance(inst),
+          paymentNote: inst.paymentNote,
+          checkNumber: inst.checkNumber,
+        };
+        
+        // Use React-PDF for instant download
+        await downloadInstallmentReceiptPDF(installmentData, schoolSettingsForPDF);
         count++;
       }
       toast.success(`تم تنزيل ${count} إيصال قسط`);
@@ -1631,135 +1699,119 @@ const Installments = () => {
       return;
     }
     setBulkDownloadLoading(true);
+    
     try {
-      const saveResp = await (window as any).electronAPI.showSaveDialog({
-        title: 'حفظ ملف مضغوط لإيصالات الأقساط',
-        filters: [{ name: 'ZIP', extensions: ['zip'] }],
-        defaultPath: `installment_receipts_${new Date().toISOString().slice(0,10)}.zip`
-      });
-      const zipPath = saveResp?.filePath || saveResp;
-      if (!zipPath) {
-        toast.error('تم إلغاء حفظ الملف المضغوط');
-        setBulkDownloadLoading(false);
-        return;
-      }
-      
-      // Prepare all HTML contents and file names for batch processing
-      // Use index to ensure unique file names even if receipt numbers are the same
-      // IMPORTANT: Pass skipApiCalls=true to prevent slow API calls during HTML generation
       toast.loading(`جاري تحضير ${selectedIds.length} إيصال...`, { id: 'bulk-prepare' });
       
-      // Generate all receipt data first (synchronous, fast)
-      const receiptDataList = selectedIds.map((id, idx) => {
-        const inst = installments.find(i => i.id === id);
-        if (!inst) return null;
-        const data = generateReceiptDataForInstallment(inst, true);
-        const safeName = (data.studentName || 'Student').normalize('NFC').replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '-');
-        const rnSafe = String(data.receiptNumber || '').replace(/[\\/:*?"<>|]/g, '-');
-        return { data, safeName, rnSafe, idx };
-      }).filter(Boolean) as { data: any; safeName: string; rnSafe: string; idx: number }[];
+      // Fetch school settings once for all receipts
+      const settingsResponse = await hybridApi.getSettings(user?.schoolId || '');
+      const settingsData = (settingsResponse?.success && settingsResponse?.data && settingsResponse.data.length > 0) 
+        ? settingsResponse.data[0] 
+        : {};
       
-      // Generate all HTML in parallel for maximum speed
-      const htmlResults = await Promise.all(
-        receiptDataList.map(async ({ data }) => {
-          return generateReceiptHTML({ 
-            ...data, 
-            language: 'arabic' as any,
-            skipApiCalls: true
-          });
-        })
-      );
+      const schoolSettingsForPDF: InstallmentSchoolSettings = {
+        schoolNameArabic: settingsData.name || settingsData.schoolName || 'اسم المدرسة',
+        schoolNameEnglish: settingsData.englishName || settingsData.schoolNameEnglish,
+        schoolLogo: settingsData.logo || settingsData.schoolLogo || '',
+        phone: settingsData.phone || settingsData.schoolPhone || '',
+        phoneWhatsapp: settingsData.phoneWhatsapp,
+        phoneCall: settingsData.phoneCall,
+        email: settingsData.email || settingsData.schoolEmail || '',
+        address: settingsData.address,
+        website: settingsData.website,
+        showWatermark: settingsData.showReceiptWatermark !== false,
+        showSignature: settingsData.showSignatureOnInstallmentReceipt !== false,
+        signature: settingsData.signature,
+      };
       
-      // Build file names with collision handling
+      // Generate all PDFs using React-PDF (fast, no Electron/Playwright needed)
+      const filesForZip: { name: string; data: Uint8Array }[] = [];
       const usedFileNames = new Set<string>();
-      const htmlContents: string[] = [];
-      const fileNames: string[] = [];
       
-      receiptDataList.forEach(({ safeName, rnSafe, idx }, i) => {
+      for (let idx = 0; idx < selectedIds.length; idx++) {
+        const id = selectedIds[idx];
+        const inst = installments.find(i => i.id === id);
+        if (!inst) continue;
+        
+        // Prepare installment data for React-PDF
+        const installmentData: InstallmentReceiptData = {
+          receiptNumber: inst.receiptNumber || `INS-${Date.now()}-${idx}`,
+          date: inst.paidDate || new Date().toISOString(),
+          studentName: inst.studentName,
+          studentNumber: inst.studentCustomId || inst.studentId,
+          className: inst.grade,
+          paymentType: getFeeTypeLabel(inst.feeType),
+          paymentMethod: inst.paymentMethod || 'cash',
+          installmentNumber: getInstallmentNumber(inst).toString(),
+          installmentMonth: inst.installmentMonth,
+          installmentAmount: inst.amount,
+          paidAmount: getPaidAmount(inst) || inst.amount,
+          remainingAmount: getRemainingBalance(inst),
+          paymentNote: inst.paymentNote,
+          checkNumber: inst.checkNumber,
+        };
+        
+        // Generate PDF blob using React-PDF
+        const pdfBlob = await generateInstallmentReceiptPDF(installmentData, schoolSettingsForPDF);
+        const pdfArrayBuffer = await pdfBlob.arrayBuffer();
+        const pdfData = new Uint8Array(pdfArrayBuffer);
+        
+        // Create unique filename
+        const safeName = (inst.studentName || 'Student').normalize('NFC').replace(/\s+/g, '_').replace(/[\\/:*?"<>|]/g, '-');
+        const rnSafe = String(installmentData.receiptNumber).replace(/[\\/:*?"<>|]/g, '-');
         let fileName = `Installment_${rnSafe}_${safeName}.pdf`;
         if (usedFileNames.has(fileName)) {
           fileName = `Installment_${rnSafe}_${safeName}_${idx + 1}.pdf`;
         }
         usedFileNames.add(fileName);
-        htmlContents.push(htmlResults[i]);
-        fileNames.push(fileName);
-      });
+        
+        filesForZip.push({ name: fileName, data: pdfData });
+      }
       
       toast.dismiss('bulk-prepare');
       
-      if (htmlContents.length === 0) {
-        toast.error('لم يتم العثور على أقساط للتحميل');
+      if (filesForZip.length === 0) {
+        toast.error('لم يتم إنشاء أي إيصالات');
         setBulkDownloadLoading(false);
         return;
       }
       
-      toast.loading(`جاري إنشاء ${htmlContents.length} إيصال...`, { id: 'bulk-pdf-progress' });
+      // Build ZIP file
+      const zipBytes = buildZip(filesForZip);
       
-      // Use ULTRA-FAST method: Generate PDFs and save ZIP directly in main process
-      // This avoids slow IPC transfer of large PDF buffers
-      if ((window as any).electronAPI?.playwrightBulkPdfToZip) {
-        try {
-          const result = await (window as any).electronAPI.playwrightBulkPdfToZip(htmlContents, fileNames, zipPath);
-          toast.dismiss('bulk-pdf-progress');
-          
-          if (result?.success) {
-            toast.success(`تم حفظ ملف مضغوط يحتوي ${result.count} إيصال قسط (${Math.round(result.elapsed / 1000)}ث)`);
-          } else {
-            throw new Error(result?.error || 'فشل في إنشاء ملفات PDF');
-          }
-        } catch (err: any) {
-          toast.dismiss('bulk-pdf-progress');
-          toast.error(`خطأ: ${err.message || err}`);
-        }
-      } else {
-        // Fallback to old method if new one not available
-        const filesForZip: { name: string; data: Uint8Array }[] = [];
-        
-        if (!(window as any).electronAPI?.playwrightBulkPdf) {
-          toast.dismiss('bulk-pdf-progress');
-          toast.error('Playwright غير متوفر');
+      // Check if Electron API is available for save dialog
+      if ((window as any).electronAPI?.showSaveDialog) {
+        const saveResp = await (window as any).electronAPI.showSaveDialog({
+          title: 'حفظ ملف مضغوط لإيصالات الأقساط',
+          filters: [{ name: 'ZIP', extensions: ['zip'] }],
+          defaultPath: `installment_receipts_${new Date().toISOString().slice(0,10)}.zip`
+        });
+        const zipPath = saveResp?.filePath || saveResp;
+        if (!zipPath) {
+          toast.error('تم إلغاء حفظ الملف المضغوط');
           setBulkDownloadLoading(false);
           return;
         }
-        
-        try {
-          const result = await (window as any).electronAPI.playwrightBulkPdf(htmlContents, fileNames);
-          
-          if (result?.success && result?.results) {
-            for (const pdfResult of result.results) {
-              if (pdfResult.success && pdfResult.data) {
-                const pdfData = pdfResult.data instanceof Uint8Array 
-                  ? pdfResult.data 
-                  : new Uint8Array(pdfResult.data);
-                filesForZip.push({ name: pdfResult.fileName, data: pdfData });
-              }
-            }
-          } else {
-            throw new Error(result?.error || 'فشل Playwright');
-          }
-        } catch (playwrightError: any) {
-          toast.dismiss('bulk-pdf-progress');
-          toast.error(`خطأ: ${playwrightError.message || playwrightError}`);
-          setBulkDownloadLoading(false);
-          return;
-        }
-        
-        toast.dismiss('bulk-pdf-progress');
-        
-        if (filesForZip.length === 0) {
-          toast.error('لم يتم إنشاء أي إيصالات');
-          setBulkDownloadLoading(false);
-          return;
-        }
-        
-        const zipBytes = buildZip(filesForZip);
         await (window as any).electronAPI.saveFile(zipPath, zipBytes);
         toast.success(`تم حفظ ملف مضغوط يحتوي ${filesForZip.length} إيصال قسط`);
+      } else {
+        // Browser fallback - download directly
+        const blob = new Blob([new Uint8Array(zipBytes)], { type: 'application/zip' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `installment_receipts_${new Date().toISOString().slice(0,10)}.zip`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success(`تم تحميل ملف مضغوط يحتوي ${filesForZip.length} إيصال قسط`);
       }
     } catch (e) {
       console.error('Bulk installments ZIP error:', e);
       toast.error('حدث خطأ أثناء إنشاء الملف المضغوط');
     } finally {
+      toast.dismiss('bulk-prepare');
       setBulkDownloadLoading(false);
     }
   };
