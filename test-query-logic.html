@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Installment Query Logic</title>
+</head>
+<body>
+    <h1>Installment Query Logic Test</h1>
+    <div id="results"></div>
+
+    <script>
+        // Simulate the exact data structure from your database
+        const mockInstallments = [
+            {
+                "id": "be7aecca-c967-4962-8570-71309505cb23",
+                "student_id": "4db56485-e0f5-42bb-8522-d63d629a5155",
+                "fee_id": "758f6d1b-1d50-4fe9-a1a2-825f138b9a1f",
+                "amount": "335.00",
+                "status": "paid"
+            },
+            {
+                "id": "19233573-17c4-4c9c-bb8e-4e46f09bfd28",
+                "student_id": "4db56485-e0f5-42bb-8522-d63d629a5155",
+                "fee_id": "758f6d1b-1d50-4fe9-a1a2-825f138b9a1f",
+                "amount": "333.00",
+                "status": "partial"
+            },
+            {
+                "id": "9ed9cf11-3ca6-4482-9ac9-7bc044bd4e22",
+                "student_id": "4db56485-e0f5-42bb-8522-d63d629a5155",
+                "fee_id": "758f6d1b-1d50-4fe9-a1a2-825f138b9a1f",
+                "amount": "333.00",
+                "status": "unpaid"
+            }
+        ];
+
+        // Test the exact filtering logic from getAll function
+        function testFiltering() {
+            const results = document.getElementById('results');
+            
+            // Test 1: Filter by student_id
+            const filters1 = { student_id: "4db56485-e0f5-42bb-8522-d63d629a5155" };
+            const filtered1 = mockInstallments.filter(item => {
+                return Object.entries(filters1).every(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return value.includes(item[key]);
+                    }
+                    return item[key] === value;
+                });
+            });
+            
+            results.innerHTML += `<h2>Test 1: Filter by student_id</h2>`;
+            results.innerHTML += `<p>Filter: ${JSON.stringify(filters1)}</p>`;
+            results.innerHTML += `<p>Result count: ${filtered1.length}</p>`;
+            results.innerHTML += `<pre>${JSON.stringify(filtered1, null, 2)}</pre>`;
+            
+            // Test 2: Filter by fee_id
+            const filters2 = { fee_id: "758f6d1b-1d50-4fe9-a1a2-825f138b9a1f" };
+            const filtered2 = mockInstallments.filter(item => {
+                return Object.entries(filters2).every(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return value.includes(item[key]);
+                    }
+                    return item[key] === value;
+                });
+            });
+            
+            results.innerHTML += `<h2>Test 2: Filter by fee_id</h2>`;
+            results.innerHTML += `<p>Filter: ${JSON.stringify(filters2)}</p>`;
+            results.innerHTML += `<p>Result count: ${filtered2.length}</p>`;
+            results.innerHTML += `<pre>${JSON.stringify(filtered2, null, 2)}</pre>`;
+            
+            // Test 3: Filter by both
+            const filters3 = { 
+                student_id: "4db56485-e0f5-42bb-8522-d63d629a5155",
+                fee_id: "758f6d1b-1d50-4fe9-a1a2-825f138b9a1f"
+            };
+            const filtered3 = mockInstallments.filter(item => {
+                return Object.entries(filters3).every(([key, value]) => {
+                    if (Array.isArray(value)) {
+                        return value.includes(item[key]);
+                    }
+                    return item[key] === value;
+                });
+            });
+            
+            results.innerHTML += `<h2>Test 3: Filter by both student_id and fee_id</h2>`;
+            results.innerHTML += `<p>Filter: ${JSON.stringify(filters3)}</p>`;
+            results.innerHTML += `<p>Result count: ${filtered3.length}</p>`;
+            results.innerHTML += `<pre>${JSON.stringify(filtered3, null, 2)}</pre>`;
+        }
+
+        testFiltering();
+    </script>
+</body>
+</html>

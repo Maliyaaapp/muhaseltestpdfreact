@@ -1,0 +1,62 @@
+appId: com.muhasel.app
+productName: Muhasel
+copyright: Copyright © 2024
+
+# Location of built files
+directories:
+  output: release
+  buildResources: build
+
+# Files to include
+files:
+  - dist/**/*
+  - dist-electron/**/*
+  # Don't include node_modules in a production build
+  # electron-builder will handle dependencies
+
+# Extra resources
+extraResources:
+  - from: dist
+    to: dist
+    filter:
+      - "**/*"
+
+# Windows configuration
+win:
+  target:
+    - nsis
+  artifactName: Muhasel-Setup-${version}.exe
+  icon: build/icon.ico  # Explicitly set icon path for Windows
+
+# NSIS installer settings
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  artifactName: Muhasel-Setup-${version}.exe
+  shortcutName: Muhasel
+
+# macOS configuration
+mac:
+  target: dmg
+  category: public.app-category.finance
+  artifactName: Muhasel-${version}.dmg
+  darkModeSupport: true
+
+# Linux configuration
+linux:
+  target: AppImage
+  artifactName: Muhasel-${version}.AppImage
+  category: Office
+
+# Protocol handlers (if needed)
+protocols:
+  name: Muhasel URL
+  schemes:
+    - muhasel
+
+# Enable asarUnpack to extract specific native modules
+asarUnpack:
+  - "node_modules/pdf-lib/**/*"
+  - "node_modules/pdfmake/**/*" 

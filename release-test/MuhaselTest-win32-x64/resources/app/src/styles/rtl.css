@@ -1,0 +1,129 @@
+/* RTL Support Styles */
+
+/* Base RTL Direction */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+/* RTL Specific Margin/Padding Adjustments */
+.rtl .mr-auto {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.rtl .ml-auto {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* RTL Icon Mirroring for Directional Icons */
+.rtl .icon-flip {
+  transform: scaleX(-1);
+}
+
+/* RTL Text Input Adjustments */
+.rtl input[type="text"],
+.rtl input[type="email"],
+.rtl input[type="password"],
+.rtl textarea {
+  text-align: right;
+}
+
+/* RTL Table Adjustments */
+.rtl table th,
+.rtl table td {
+  text-align: right;
+}
+
+/* RTL List Adjustments */
+.rtl ul, 
+.rtl ol {
+  padding-right: 1.5rem;
+  padding-left: 0;
+}
+
+/* RTL Form Label Adjustments */
+.rtl label {
+  text-align: right;
+}
+
+/* RTL Button Icon Positioning */
+.rtl .btn-icon-left .icon {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+.rtl .btn-icon-right .icon {
+  margin-left: 0;
+  margin-right: 0.5rem;
+}
+
+/* RTL Dropdown Menu Positioning */
+.rtl .dropdown-menu {
+  text-align: right;
+  left: auto;
+  right: 0;
+}
+
+/* RTL Checkbox and Radio Button Adjustments */
+.rtl input[type="checkbox"],
+.rtl input[type="radio"] {
+  margin-right: 0;
+  margin-left: 0.5rem;
+}
+
+/* RTL Modal Adjustments */
+.rtl .modal-header .close {
+  margin: -1rem auto -1rem -1rem;
+}
+
+/* RTL Alert and Notification Adjustments */
+.rtl .alert-dismissible {
+  padding-left: 4rem;
+  padding-right: 1.25rem;
+}
+
+.rtl .alert-dismissible .close {
+  left: 0;
+  right: auto;
+}
+
+/* RTL Grid System Adjustments */
+@media (min-width: 576px) {
+  .rtl .offset-sm-1 {
+    margin-left: 0;
+    margin-right: 8.333333%;
+  }
+  .rtl .offset-sm-2 {
+    margin-left: 0;
+    margin-right: 16.666667%;
+  }
+  .rtl .offset-sm-3 {
+    margin-left: 0;
+    margin-right: 25%;
+  }
+}
+
+/* RTL Print Specific Styles */
+@media print {
+  .rtl {
+    direction: rtl;
+    text-align: right;
+  }
+  
+  .rtl .print-header {
+    text-align: right;
+  }
+  
+  .rtl .print-footer {
+    text-align: right;
+  }
+}
+
+/* Arabic Font Optimization */
+.arabic-text {
+  font-family: 'Tajawal', 'Cairo', sans-serif;
+  letter-spacing: 0;
+  word-spacing: 0.05em;
+} 

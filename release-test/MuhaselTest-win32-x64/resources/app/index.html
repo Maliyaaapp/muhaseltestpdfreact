@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Muhasel - نظام الادارة المالية للمدارس الشامل للمؤسسات التعليمية والإدارات المالية في عمان" />
+    <meta property="og:description" content="Muhasel - نظام الادارة المالية للمدارس الشامل للمؤسسات التعليمية والإدارات المالية في عمان" />
+    <meta property="og:title" content="Muhasel | الحل المتكامل للإدارة المالية في عمان" />
+    <meta property="og:image" content="https://imagedelivery.net/FIZL8110j4px64kO6qJxWA/e7de98f9j8fd0j4714j8326j17c11472c487/public" />
+    <meta property="twitter:image" content="https://imagedelivery.net/FIZL8110j4px64kO6qJxWA/e7de98f9j8fd0j4714j8326j17c11472c487/public" />
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#800000" />
+    
+    <!-- Cache busting meta tags -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <meta name="version" content="1.0.0" />  <!-- Increment this on each deployment -->
+    <meta name="build-timestamp" content="2025-05-18T15:35:00Z" />
+    <meta name="debug-info" content="forced-rebuild-with-relative-paths" />
+    
+    <!-- Favicons -->
+    <link rel="shortcut icon" href="./favicon.ico" />
+    <link rel="icon" type="image/png" href="./icons/icon-192x192.png" />
+    
+    <!-- Inline SVG icon as backup -->
+    <link rel="icon" href='data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="32" height="32"><rect width="100" height="100" fill="%23800000" rx="20" ry="20"/><text x="50" y="65" font-family="Arial, sans-serif" font-size="60" font-weight="bold" fill="white" text-anchor="middle">M</text></svg>' type="image/svg+xml">
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="./manifest.json?v=1.0.0" />
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
+    
+    <!-- Resource hints for performance -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+    
+    <!-- Preload critical fonts -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/tajawal/v9/Iura6YBj_oCad4k1nzGBCw.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/tajawal/v9/Iurf6YBj_oCad4k1l8KiHrRpiYlJ.woff2" as="font" type="font/woff2" crossorigin>
+    
+    <title>Muhasel | الحل المتكامل للإدارة المالية في عمان</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Security Policy for Electron - Modified to allow eval for development -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' data: https:; connect-src 'self' https: wss: http://localhost:* ws://localhost:*;">
+    
+    <!-- Inline fallback CSS for faster rendering -->
+    <style>
+      /* Global styles to ensure consistent appearance */
+      :root {
+        --primary-color: #800000;
+        --primary-light: #A00000;
+        --primary-dark: #600000;
+        --secondary-color: #FFFFFF;
+        --secondary-light: #F0F0F0;
+        --secondary-dark: #E0E0E0;
+      }
+      
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      html {
+        direction: rtl;
+      }
+      
+      body {
+        font-family: 'Tajawal', sans-serif;
+        background-color: #f9fafb;
+        color: #1f2937;
+        margin: 0;
+        padding: 0;
+      }
+      
+      button {
+        font-family: 'Tajawal', sans-serif;
+      }
+      
+      input, textarea, select {
+        font-family: 'Tajawal', sans-serif;
+      }
+      
+      /* Emergency font fallback */
+      @font-face {
+        font-family: 'Tajawal';
+        font-style: normal;
+        font-weight: 400;
+        font-display: swap;
+        src: local('Tajawal'), url('https://fonts.gstatic.com/s/tajawal/v9/Iura6YBj_oCad4k1nzGBCw.woff2') format('woff2');
+      }
+      
+      /* Common utility classes */
+      .btn {
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        border: none;
+      }
+      
+      .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+      }
+      
+      .input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.375rem;
+        outline: none;
+      }
+      
+      .card {
+        background-color: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        padding: 1rem;
+      }
+      
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Error message styles */
+      #error-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-color: #f44336;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+        z-index: 9999;
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Error container for displaying errors -->
+    <div id="error-container"></div>
+
+    <!-- Root element for React app -->
+    <div id="root">
+      <!-- Fallback content while app is loading -->
+      <div style="display: flex; height: 100vh; justify-content: center; align-items: center; flex-direction: column;">
+        <div style="width: 80px; height: 80px; margin: 0 auto 20px; background-color: #800000; border-radius: 16px; display: flex; align-items: center; justify-content: center; color: white; font-size: 40px; font-weight: bold;">
+          M
+        </div>
+        <h1 style="margin-bottom: 20px; color: #800000;">جاري التحميل...</h1>
+        <p id="loading-status">يتم تحميل النظام، يرجى الانتظار...</p>
+      </div>
+    </div>
+
+    <!-- Load scripts -->
+    <script>
+      // Error handling
+      window.addEventListener('error', function(event) {
+        const errorContainer = document.getElementById('error-container');
+        if (errorContainer) {
+          errorContainer.style.display = 'block';
+          errorContainer.textContent = 'Error: ' + event.message;
+          console.error('Caught error:', event.error);
+        }
+      });
+
+      // Update loading status
+      function updateLoadingStatus(message) {
+        const statusElement = document.getElementById('loading-status');
+        if (statusElement) {
+          statusElement.textContent = message;
+        }
+        console.log(message);
+      }
+
+      // Check for Electron
+      updateLoadingStatus('التحقق من بيئة التشغيل...');
+      if (window.electronAPI) {
+        updateLoadingStatus('تم اكتشاف بيئة Electron');
+        console.log('Electron API available:', window.electronAPI);
+        console.log('Preload test:', window.electronAPI.testPreload?.());
+      } else {
+        updateLoadingStatus('تشغيل في بيئة المتصفح');
+        console.log('Running in browser environment');
+      }
+    </script>
+
+    <!-- Entry point for Vite/React app -->
+    <script type="module" src="./src/main.tsx"></script>
+  </body>
+</html>
+ 

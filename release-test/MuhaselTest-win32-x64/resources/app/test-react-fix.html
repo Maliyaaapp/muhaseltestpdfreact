@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Fix Test</title>
+    
+    <!-- React initialization fix for Electron -->
+    <script>
+      // React initialization fix for Electron
+      (function() {
+        if (typeof window !== 'undefined') {
+          window.React = window.React || {};
+          window.ReactDOM = window.ReactDOM || {};
+          
+          // Safe hook implementations to prevent undefined errors
+          const safeHooks = {
+            useLayoutEffect: function(fn, deps) {
+              console.log('✅ useLayoutEffect called, using fallback');
+              return typeof setTimeout !== 'undefined' ? setTimeout(fn, 0) : fn();
+            },
+            useEffect: function(fn, deps) {
+              console.log('✅ useEffect called, using fallback');
+              return typeof setTimeout !== 'undefined' ? setTimeout(fn, 0) : fn();
+            },
+            useState: function(initialState) {
+              console.log('✅ useState called, using fallback');
+              return [initialState, function() {}];
+            },
+            useRef: function(initialValue) {
+              console.log('✅ useRef called, using fallback');
+              return { current: initialValue };
+            }
+          };
+          
+          // Apply safe hooks to window.React
+          Object.keys(safeHooks).forEach(function(hook) {
+            if (!window.React[hook]) {
+              window.React[hook] = safeHooks[hook];
+            }
+          });
+          
+          console.log('✅ React initialization completed successfully');
+          console.log('Available React hooks:', Object.keys(window.React));
+        }
+      })();
+    </script>
+    
+    <!-- Test script that would normally cause the error -->
+    <script>
+      // Simulate the error condition
+      setTimeout(() => {
+        console.log('Testing React hooks...');
+        try {
+          if (window.React && window.React.useLayoutEffect) {
+            console.log('✅ useLayoutEffect is available:', typeof window.React.useLayoutEffect);
+            window.React.useLayoutEffect(() => {
+              console.log('✅ useLayoutEffect executed successfully');
+            }, []);
+          } else {
+            console.log('❌ useLayoutEffect not available');
+          }
+        } catch (error) {
+          console.error('❌ Error testing useLayoutEffect:', error.message);
+        }
+      }, 100);
+    </script>
+  </head>
+  <body>
+    <div style="padding: 20px; text-align: center;">
+      <h1>React Fix Test</h1>
+      <p>Check the console for React hook availability test results</p>
+      <div id="results" style="margin-top: 20px; padding: 15px; background: #f0f0f0; border-radius: 5px;">
+        Results will appear here...
+      </div>
+    </div>
+    
+    <script>
+      // Display results in the page
+      const resultsDiv = document.getElementById('results');
+      const originalLog = console.log;
+      const logs = [];
+      
+      console.log = function(...args) {
+        logs.push(args.join(' '));
+        originalLog.apply(console, args);
+        resultsDiv.innerHTML = logs.join('<br>');
+      };
+      
+      // Also capture errors
+      window.addEventListener('error', (event) => {
+        console.log('❌ ERROR: ' + event.message);
+      });
+    </script>
+  </body>
+</html>

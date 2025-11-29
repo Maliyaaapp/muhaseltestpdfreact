@@ -1,0 +1,7 @@
+Place your images in this directory:
+
+1. logo.png - App logo (recommended size: 200x200px)
+2. app-preview.png - Main app screenshot for hero section (recommended size: 800x600px)
+3. screenshot-1.png through screenshot-4.png - App screenshots for the slider (recommended size: 1200x800px)
+
+For best results, use PNG format with transparent background for the logo. 

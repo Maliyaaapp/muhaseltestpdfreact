@@ -1,0 +1,14 @@
+/**
+ * Enhanced helper for creating print-friendly HTML based invoice/receipt templates
+ * with improved RTL support and proper A4 paper dimensions.
+ * Optimized for Arabic content and proper page breaks.
+ */
+
+// Remove the conflicting global Window declaration
+// It's already defined in electron.d.ts
+   
+   
+  
+  
+  
+  

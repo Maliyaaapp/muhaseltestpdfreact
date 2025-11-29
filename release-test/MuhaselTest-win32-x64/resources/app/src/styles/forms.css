@@ -1,0 +1,301 @@
+/* Standardized Form Sizes and Layout Styles */
+
+/* Container sizes */
+.form-container {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.form-container-sm {
+  max-width: 500px;
+}
+
+.form-container-lg {
+  max-width: 1000px;
+}
+
+/* Form section styling */
+.form-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 0.375rem;
+  border: 1px solid #eaeaea;
+}
+
+.form-section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--primary-color);
+  display: inline-block;
+}
+
+/* Form row layout */
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: -0.5rem;
+}
+
+.form-col {
+  padding: 0.5rem;
+  box-sizing: border-box;
+}
+
+.form-col-full {
+  width: 100%;
+}
+
+.form-col-half {
+  width: 100%;
+}
+
+.form-col-third {
+  width: 100%;
+}
+
+.form-col-quarter {
+  width: 100%;
+}
+
+/* Responsive columns */
+@media (min-width: 640px) {
+  .form-col-half {
+    width: 50%;
+  }
+  
+  .form-col-third {
+    width: 50%;
+  }
+  
+  .form-col-quarter {
+    width: 50%;
+  }
+}
+
+@media (min-width: 768px) {
+  .form-col-third {
+    width: 33.333333%;
+  }
+  
+  .form-col-quarter {
+    width: 25%;
+  }
+}
+
+/* Form controls with consistent sizing */
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  outline: 0;
+  box-shadow: 0 0 0 0.2rem rgba(128, 0, 0, 0.25);
+}
+
+/* Form labels with consistent styling */
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #333;
+}
+
+/* Form groups with consistent spacing */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group-sm {
+  margin-bottom: 0.75rem;
+}
+
+/* Button sizes */
+.btn {
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+}
+
+.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1.125rem;
+}
+
+/* Fixed width buttons */
+.btn-fixed-width {
+  min-width: 150px;
+  text-align: center;
+}
+
+/* Form actions section */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #eaeaea;
+}
+
+/* RTL specific adjustments */
+[dir="rtl"] .form-actions {
+  justify-content: flex-start;
+}
+
+[dir="rtl"] .form-label {
+  text-align: right;
+}
+
+/* Card layouts for content sections */
+.content-card {
+  background-color: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.content-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.content-card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.content-card-body {
+  padding: 0.5rem 0;
+}
+
+.content-card-footer {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #eaeaea;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Table container with fixed dimensions */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #eaeaea;
+}
+
+/* Consistent table styling */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.75rem 1rem;
+  text-align: right;
+}
+
+.data-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+}
+
+.data-table td {
+  border-bottom: 1px solid #eaeaea;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+/* Modal sizes */
+.modal-sm {
+  max-width: 400px;
+}
+
+.modal-md {
+  max-width: 600px;
+}
+
+.modal-lg {
+  max-width: 800px;
+}
+
+.modal-xl {
+  max-width: 1000px;
+}
+
+/* Fixed height containers with scrolling */
+.fixed-height-container {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid #eaeaea;
+  border-radius: 0.375rem;
+}
+
+.fixed-height-sm {
+  max-height: 200px;
+}
+
+.fixed-height-lg {
+  max-height: 600px;
+}
+
+/* Print-specific form styles */
+@media print {
+  .form-container,
+  .content-card {
+    box-shadow: none;
+    border: 1px solid #eaeaea;
+  }
+  
+  .form-section {
+    break-inside: avoid;
+  }
+  
+  .form-actions,
+  .btn {
+    display: none;
+  }
+} 

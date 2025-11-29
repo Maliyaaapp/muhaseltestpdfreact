@@ -1,0 +1,20 @@
+{
+  "name": "muhasel-electron",
+  "version": "1.0.0",
+  "description": "Muhasel School Finance Management System - Electron App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^25.0.0",
+    "electron-builder": "^24.4.0"
+  },
+  "dependencies": {
+    "electron-serve": "^1.1.0",
+    "electron-store": "^8.1.0"
+  }
+}

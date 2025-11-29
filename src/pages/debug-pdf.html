@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Debug Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    button {
+      padding: 10px 15px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    pre {
+      background-color: #f5f5f5;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .log {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>PDF Export Debug</h1>
+  
+  <div>
+    <button id="check-electron">Check Electron</button>
+    <button id="test-pdf">Test PDF Generation</button>
+    <button id="clear-log">Clear Log</button>
+  </div>
+  
+  <div class="log" id="log"></div>
+  
+  <script>
+    const logElement = document.getElementById('log');
+    
+    function log(message, type = 'info') {
+      const entry = document.createElement('div');
+      entry.style.color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'black';
+      entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      logElement.appendChild(entry);
+      logElement.scrollTop = logElement.scrollHeight;
+    }
+    
+    document.getElementById('check-electron').addEventListener('click', () => {
+      log('Checking Electron environment...');
+      
+      if (window.electron) {
+        log('Electron detected!', 'success');
+        log(`IPC Renderer available: ${!!window.electron.ipcRenderer}`, 'success');
+      } else {
+        log('Electron not detected. Are you running in Electron?', 'error');
+      }
+      
+      if (window.electronAPI) {
+        log('ElectronAPI detected!', 'success');
+      } else {
+        log('ElectronAPI not detected.', 'error');
+      }
+    });
+    
+    document.getElementById('test-pdf').addEventListener('click', async () => {
+      log('Testing PDF generation...');
+      
+      if (!window.electron?.ipcRenderer) {
+        log('Electron IPC not available', 'error');
+        return;
+      }
+      
+      try {
+        const html = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Test PDF</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              h1 { color: #333; }
+            </style>
+          </head>
+          <body>
+            <h1>Test PDF Document</h1>
+            <p>This is a test PDF document generated using Electron's printToPDF.</p>
+            <p>Current time: ${new Date().toLocaleString()}</p>
+          </body>
+          </html>
+        `;
+        
+        log('Sending generate-pdf request...');
+        
+        const result = await window.electron.ipcRenderer.invoke('generate-pdf', {
+          html,
+          fileName: 'test-pdf.pdf',
+          options: {
+            format: 'A4',
+            printBackground: true,
+            margin: {
+              top: '20mm',
+              bottom: '20mm',
+              left: '15mm',
+              right: '15mm'
+            }
+          }
+        });
+        
+        log('IPC result received: ' + JSON.stringify(result));
+        
+        if (result.success) {
+          log(`PDF generated successfully: ${result.filePath}`, 'success');
+        } else {
+          log(`PDF generation failed: ${result.error}`, 'error');
+        }
+      } catch (error) {
+        log(`Error: ${error.message}`, 'error');
+      }
+    });
+    
+    document.getElementById('clear-log').addEventListener('click', () => {
+      logElement.innerHTML = '';
+    });
+    
+    // Initial check
+    window.addEventListener('DOMContentLoaded', () => {
+      log('Page loaded. Click "Check Electron" to verify Electron environment.');
+    });
+  </script>
+</body>
+</html> 

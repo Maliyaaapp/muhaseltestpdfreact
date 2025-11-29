@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "skipLibCheck": true,
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2020",
+    "esModuleInterop": true
+  },
+  "include": ["vite.config.ts", "copy-electron-files.js", "preload.ts"]
+} 
